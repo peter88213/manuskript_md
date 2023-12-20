@@ -1,6 +1,6 @@
-# convert_manuskript-world
+# convert_manuskript_world
 
-Convert the manuskript "world.opml" file to markdown.
+A Python script to convert the *Manuskript* "world.opml" file to markdown.
 
 ## Requirements
 
