@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """Convert a Manuskript "world.opml" file into a Markdown file.
 
 usage: cmw.py [-h] sourcefile
@@ -13,6 +14,7 @@ options:
 The created text file "world.md" is placed in the same directory as the sourcefile.
 
 v1.0: Creating the new script.
+v1.1: Add "shebang"; refactor.
 
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/
@@ -39,7 +41,7 @@ def main(filePath):
         for xmlNode in xmlBranch.iterfind('outline'):
             lines.append(f"{'#'*level} {xmlNode.attrib.get('name', 'Element')}")
             desc = xmlNode.attrib.get('description', '').replace('\n', '\n\n')
-            lines.append(f"{desc}")
+            lines.append(desc)
             convert_branch(xmlNode, level)
 
     body, extension = os.path.splitext(filePath)
