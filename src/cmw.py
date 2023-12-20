@@ -17,7 +17,7 @@ v1.0: Creating the new script.
 v1.1: Add "shebang"; refactor.
 
 Copyright (c) 2023 Peter Triesberger
-For further information see https://github.com/peter88213/
+For further information see https://github.com/peter88213/convert_manuskript_world
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
 import argparse
