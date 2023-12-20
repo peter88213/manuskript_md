@@ -3,8 +3,6 @@
 
 usage: cmw.py [-h] sourcefile
 
-Convert a Manuskript"world.opml" file into a Markdown-formatted text file.
-
 positional arguments:
   sourcefile  The path to the "world.opml" file.
 
@@ -15,6 +13,7 @@ The created text file "world.md" is placed in the same directory as the sourcefi
 
 v1.0: Creating the new script.
 v1.1: Add "shebang"; refactor.
+v1.2: Fix a typo in the help text.
 
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/convert_manuskript_world
@@ -39,7 +38,7 @@ def main(filePath):
     def convert_branch(xmlBranch, level):
         level += 1
         for xmlNode in xmlBranch.iterfind('outline'):
-            lines.append(f"{'#'*level} {xmlNode.attrib.get('name', 'Element')}")
+            lines.append(f"{'#' * level} {xmlNode.attrib.get('name', 'Element')}")
             desc = xmlNode.attrib.get('description', '').replace('\n', '\n\n')
             lines.append(desc)
             convert_branch(xmlNode, level)
@@ -63,7 +62,7 @@ def main(filePath):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description=f'Convert a Manuskript"world.opml" file into a Markdown-formatted text file.',
+        description=f'Convert a Manuskript "world.opml" file into a Markdown-formatted text file.',
         epilog='The created text file "world.md" is placed in the same directory as the sourcefile.')
     parser.add_argument('filePath', metavar='sourcefile',
                         help='The path to the "world.opml" file.')
