@@ -1,35 +1,79 @@
-#!/usr/bin/python3
-"""Convert a Manuskript "world.opml" file into a Markdown file.
+"""Create Markdown-formatted text files from the Manuscript world and characters files.
 
-usage: cmw.py [-h] sourcefile
+usage: crmd.py [-h] projectdir
 
 positional arguments:
-  sourcefile  The path to the "world.opml" file.
+  projectdir  The Manuscript project directory.
 
 options:
-  -h, --help  show a help message and exit
+  -h, --help  show this help message and exit
 
-The created text file "world.md" is placed in the same directory as the sourcefile.
+The created text files "world.md" and "characters.md" are placed in the
+Manuskript project directory.
 
 v1.0: Creating the new script.
 v1.1: Add "shebang"; refactor.
 v1.2: Fix a typo in the help text.
+v2.0: Change the interface and convert the characters as well.
 
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/convert_manuskript_world
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
 import argparse
+import glob
 import os
 
 import xml.etree.ElementTree as ET
 
 
-def main(filePath):
+def convert_characters(prjDir):
+    """Create a Markdown file with the contents of project's "characters" files.
+    
+    Positional arguments:
+        prjDir: str -- The Manuscript project directory.
+    
+    Return a message on success. 
+    Raise an exception on error.
+    """
+    headings = [
+        'Name',
+        'Motivation',
+        'Goal',
+        'Conflict',
+        'Epiphany',
+        'Phrase Summary',
+        'Paragraph Summary',
+        ]
+
+    newlines = []
+    for charaFile in glob.iglob(f'{prjDir}/characters/*.txt'):
+        if charaFile is None:
+            continue
+
+        with open(charaFile, 'r', encoding='utf-8') as f:
+            lines = f.read().split('\n')
+        for line in lines:
+            for heading in headings:
+                if line.startswith(heading):
+                    text = line.split(f'{heading}:', maxsplit=1)[1].strip()
+                    if text:
+                        if heading == 'Name':
+                            newlines.append(f'# {text}')
+                        else:
+                            newlines.append(f'## {heading}')
+                            newlines.append(text)
+    newFile = f'{prjDir}/characters.md'
+    with open(newFile, 'w', encoding='utf-8') as f:
+        f.write('\n\n'.join(newlines))
+    return f'Markdown file "{os.path.normpath(newFile)}" written.'
+
+
+def convert_world(prjDir):
     """Create a Markdown file with the contents of the input OPML file.
     
     Positional arguments:
-        filePath: str -- The path to the "world.opml" file.
+        prjDir: str -- The Manuscript project directory.
     
     Return a message on success. 
     Raise an exception on error.
@@ -43,10 +87,7 @@ def main(filePath):
             lines.append(desc)
             convert_branch(xmlNode, level)
 
-    body, extension = os.path.splitext(filePath)
-    if extension.lower() != '.opml':
-        raise ValueError(f'File must be of the OPML type, but is {extension}')
-
+    filePath = f'{prjDir}/world.opml'
     xmlTree = ET.parse(filePath)
     lines = []
     xmlBody = xmlTree.getroot().find('body')
@@ -54,7 +95,7 @@ def main(filePath):
         raise ValueError(f'"{filePath}" seems not to be a Manuscript world file.')
 
     convert_branch(xmlBody, 0)
-    newFile = f'{body}.md'
+    newFile = f'{prjDir}/world.md'
     with open(newFile, 'w', encoding='utf-8') as f:
         f.write('\n\n'.join(lines))
     return f'Markdown file "{os.path.normpath(newFile)}" written.'
@@ -62,12 +103,13 @@ def main(filePath):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description=f'Convert a Manuskript "world.opml" file into a Markdown-formatted text file.',
-        epilog='The created text file "world.md" is placed in the same directory as the sourcefile.')
-    parser.add_argument('filePath', metavar='sourcefile',
-                        help='The path to the "world.opml" file.')
+        description=f'Create Markdown-formatted text files from the Manuscript world and characters files.',
+        epilog='The created text files "world.md" and "characters.md" are placed in the Manuskript project directory.')
+    parser.add_argument('prjDir', metavar='projectdir',
+                        help='The Manuscript project directory.')
     args = parser.parse_args()
     try:
-        print(main(args.filePath))
+        print(convert_world(args.prjDir))
+        print(convert_characters(args.prjDir))
     except Exception as ex:
         print(f'ERROR: {str(ex)}')
