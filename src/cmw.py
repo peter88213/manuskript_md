@@ -18,6 +18,7 @@ v2.0: Change the interface and convert the characters as well.
 v2.1: Catch exceptions separately for characters and world.
 v2.2: Refactor; fix messages.
 v2.3: Fix a bug where character's multiline data gets lost; refactor.
+v2.4: Use Unix line breaks for the Python script.
 
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/convert_manuskript_world
