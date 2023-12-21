@@ -17,6 +17,7 @@ v1.2: Fix a typo in the help text.
 v2.0: Change the interface and convert the characters as well.
 v2.1: Catch exceptions separately for characters and world.
 v2.2: Refactor; fix messages.
+v2.3: Fix a bug where character's multiline data gets lost; refactor.
 
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/convert_manuskript_world
@@ -48,12 +49,14 @@ def convert_world(prjDir):
             convert_branch(xmlNode, level)
 
     filePath = f'{prjDir}/world.opml'
+
+    # Parse the OPML world file.
     xmlTree = ET.parse(filePath)
-    lines = []
     xmlBody = xmlTree.getroot().find('body')
     if xmlBody is None:
         raise ValueError(f'"{filePath}" seems not to be a Manuskript world file.')
 
+    lines = []
     convert_branch(xmlBody, 0)
     newFile = f'{prjDir}/world.md'
     with open(newFile, 'w', encoding='utf-8') as f:
@@ -62,7 +65,7 @@ def convert_world(prjDir):
 
 
 def convert_characters(prjDir):
-    """Create a Markdown file with the contents of project's "characters" files.
+    """Create a Markdown file with the contents of project's "characters" text files.
     
     Positional arguments:
         prjDir: str -- The Manuskript project directory.
@@ -87,17 +90,29 @@ def convert_characters(prjDir):
 
         with open(charaFile, 'r', encoding='utf-8') as f:
             lines = f.read().split('\n')
+
+        # Parse the YAML-like character data file.
+        heading = ''
         for line in lines:
-            for heading in headings:
-                if line.startswith(heading):
-                    text = line.split(f'{heading}:', maxsplit=1)[1].strip()
-                    if text:
-                        if heading == 'Name':
-                            newlines.append(f'# {text}')
-                        else:
-                            newlines.append(f'## {heading}')
-                            newlines.append(text)
-                    break
+            if line.startswith(' '):
+                text = line
+                appendParagraph = True
+            elif ':' in line:
+                heading, text = line.split(':', maxsplit=1)
+                appendParagraph = False
+            else:
+                continue
+
+            if heading in headings:
+                text = text.strip()
+                if text:
+                    if appendParagraph:
+                        newlines.append(text)
+                    elif heading == 'Name':
+                        newlines.append(f'# {text}')
+                    else:
+                        newlines.append(f'## {heading}')
+                        newlines.append(text)
     newFile = f'{prjDir}/characters.md'
     with open(newFile, 'w', encoding='utf-8') as f:
         f.write('\n\n'.join(newlines))
