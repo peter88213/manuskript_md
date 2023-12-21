@@ -1,6 +1,6 @@
 """Create Markdown-formatted text files from the Manuskript world and characters files.
 
-usage: crmd.py [-h] projectdir
+usage: cmw.py [-h] projectdir
 
 positional arguments:
   projectdir  The Manuskript project directory.
