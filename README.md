@@ -1,6 +1,6 @@
 # convert_manuskript_world
 
-A Python script to create Markdown-formatted text files from a Manuscript project.
+A Python script to create Markdown-formatted text files from a [Manuskript](https://www.theologeek.ch/manuskript/) project.
 
 ## Requirements
 
