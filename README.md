@@ -13,7 +13,7 @@ Save the file [cmw.py](https://raw.githubusercontent.com/peter88213/convert_manu
 ## Usage
 
 You can start the script either from the command line, e.g. `python3 cmw.py <path-to-project-dir>`, 
-or via dragging your *world.opml* file and dropping it on the *cmw.py* icon. 
+or via dragging your Manuskript project folder icon and dropping it on the *cmw.py* icon. 
 
 ## License
 
