@@ -15,6 +15,7 @@ v1.0: Creating the new script.
 v1.1: Add "shebang"; refactor.
 v1.2: Fix a typo in the help text.
 v2.0: Change the interface and convert the characters as well.
+v2.1: Catch exceptions separately for characters and world.
 
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/convert_manuskript_world
@@ -25,6 +26,38 @@ import glob
 import os
 
 import xml.etree.ElementTree as ET
+
+
+def convert_world(prjDir):
+    """Create a Markdown file with the contents of the project's "world.opml" file.
+    
+    Positional arguments:
+        prjDir: str -- The Manuscript project directory.
+    
+    Return a message on success. 
+    Raise an exception on error.
+    """
+
+    def convert_branch(xmlBranch, level):
+        level += 1
+        for xmlNode in xmlBranch.iterfind('outline'):
+            lines.append(f"{'#' * level} {xmlNode.attrib.get('name', 'Element')}")
+            desc = xmlNode.attrib.get('description', '').replace('\n', '\n\n')
+            lines.append(desc)
+            convert_branch(xmlNode, level)
+
+    filePath = f'{prjDir}/world.opml'
+    xmlTree = ET.parse(filePath)
+    lines = []
+    xmlBody = xmlTree.getroot().find('body')
+    if xmlBody is None:
+        raise ValueError(f'"{filePath}" seems not to be a Manuscript world file.')
+
+    convert_branch(xmlBody, 0)
+    newFile = f'{prjDir}/world.md'
+    with open(newFile, 'w', encoding='utf-8') as f:
+        f.write('\n\n'.join(lines))
+    return f'Markdown file "{os.path.normpath(newFile)}" written.'
 
 
 def convert_characters(prjDir):
@@ -69,38 +102,6 @@ def convert_characters(prjDir):
     return f'Markdown file "{os.path.normpath(newFile)}" written.'
 
 
-def convert_world(prjDir):
-    """Create a Markdown file with the contents of the input OPML file.
-    
-    Positional arguments:
-        prjDir: str -- The Manuscript project directory.
-    
-    Return a message on success. 
-    Raise an exception on error.
-    """
-
-    def convert_branch(xmlBranch, level):
-        level += 1
-        for xmlNode in xmlBranch.iterfind('outline'):
-            lines.append(f"{'#' * level} {xmlNode.attrib.get('name', 'Element')}")
-            desc = xmlNode.attrib.get('description', '').replace('\n', '\n\n')
-            lines.append(desc)
-            convert_branch(xmlNode, level)
-
-    filePath = f'{prjDir}/world.opml'
-    xmlTree = ET.parse(filePath)
-    lines = []
-    xmlBody = xmlTree.getroot().find('body')
-    if xmlBody is None:
-        raise ValueError(f'"{filePath}" seems not to be a Manuscript world file.')
-
-    convert_branch(xmlBody, 0)
-    newFile = f'{prjDir}/world.md'
-    with open(newFile, 'w', encoding='utf-8') as f:
-        f.write('\n\n'.join(lines))
-    return f'Markdown file "{os.path.normpath(newFile)}" written.'
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description=f'Create Markdown-formatted text files from the Manuscript world and characters files.',
@@ -110,6 +111,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     try:
         print(convert_world(args.prjDir))
+    except Exception as ex:
+        print(f'ERROR: {str(ex)}')
+    try:
         print(convert_characters(args.prjDir))
     except Exception as ex:
         print(f'ERROR: {str(ex)}')
