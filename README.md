@@ -1,6 +1,6 @@
 # convert_manuskript_world
 
-A Python script to convert the *Manuskript* world and character files into markdown.
+A Python script to create Markdown-formatted text files from a Manuscript project.
 
 ## Requirements
 
@@ -17,18 +17,24 @@ from a batch file or shell script (that may launch *pandoc* afterwards),
 or via dragging your Manuskript project folder icon and dropping it on the *cmw.py* icon. 
 
 ```
-command: cmw.py [-h] projectdir
+usage: cmw.py [-h] [-m] [-w] [-c] projectdir
+
+Create Markdown-formatted text files from a Manuscript project.
 
 positional arguments:
-  projectdir  The Manuskript project directory.
+  projectdir        The Manuskript project directory.
 
 options:
-  -h, --help  show this help message and exit
+  -h, --help        show this help message and exit
+  -m, --manuscript  Create a "manuscript.md" file.
+  -w, --world       Create a "world.md" file.
+  -c, --characters  Create a "characters.md" file.
 
+The created text files "manuscript.md", "world.md", and "characters.md" are
+placed in the Manuskript project directory. If no option is selected, The
+whole file set is created.
 ```
 
-The created text files "world.md" and "characters.md" are placed in the
-Manuskript project directory.
 
 ## License
 
