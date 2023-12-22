@@ -1,7 +1,7 @@
 #!/usr/bin/python3
-"""cmw.py
+"""mskmd.py
 
-usage: cmw.py [-h] [-m] [-w] [-c] projectdir
+usage: mskmd.py [-h] [-m] [-w] [-c] projectdir
 
 Create Markdown-formatted text files from a Manuscript project.
 

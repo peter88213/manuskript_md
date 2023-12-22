@@ -1,4 +1,4 @@
-# convert_manuskript_world
+# manuskript2md
 
 A Python script to create Markdown-formatted text files from a [Manuskript](https://www.theologeek.ch/manuskript/) project.
 
@@ -18,7 +18,7 @@ A Python script to create Markdown-formatted text files from a [Manuskript](http
 
 ## Download
 
-Save the file [cmw.py](https://raw.githubusercontent.com/peter88213/convert_manuskript-world/main/cmw.py).
+Save the file [mskmd.py](https://raw.githubusercontent.com/peter88213/convert_manuskript-world/main/mskmd.py).
 
 ## Usage
 
@@ -26,7 +26,7 @@ You can start the script either from the command line, or
 from a batch file or shell script (that may launch *pandoc* afterwards). 
 
 ```
-usage: cmw.py [-h] [-m] [-w] [-c] projectdir
+usage: mskmd.py [-h] [-m] [-w] [-c] projectdir
 
 Create Markdown-formatted text files from a Manuscript project.
 
