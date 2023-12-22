@@ -22,9 +22,8 @@ Save the file [cmw.py](https://raw.githubusercontent.com/peter88213/convert_manu
 
 ## Usage
 
-You can start the script either from the command line, 
-from a batch file or shell script (that may launch *pandoc* afterwards), 
-or via dragging your Manuskript project folder icon and dropping it on the *cmw.py* icon. 
+You can start the script either from the command line, or 
+from a batch file or shell script (that may launch *pandoc* afterwards). 
 
 ```
 usage: cmw.py [-h] [-m] [-w] [-c] projectdir
