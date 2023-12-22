@@ -35,6 +35,17 @@ placed in the Manuskript project directory. If no option is selected, The
 whole file set is created.
 ```
 
+As a *Manuskript* user you probably have [pandoc](https://pandoc.org/) installed, 
+so you can convert the Markdown-formatted text files into many other document formats, 
+such as odt or docx. 
+
+Here's how the command looks like for converting the *world.md* file into
+*world.odt* for LibreOffice:
+
+`pandoc -o world.odt -fMarkdown-smart world.md`
+
+
+
 
 ## License
 
