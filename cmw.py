@@ -40,7 +40,7 @@ import xml.etree.ElementTree as ET
 
 
 def convert_world(prjDir):
-    """Create a Markdown file with the contents of the project's "world.opml" file.
+    """Create a Markdown file with the project's story world data.
     
     Positional arguments:
         prjDir: str -- The Manuskript project directory.
@@ -74,7 +74,7 @@ def convert_world(prjDir):
 
 
 def convert_characters(prjDir):
-    """Create Markdown-formatted text files from a Manuscript project.
+    """Create a Markdown file with project's character data.
     
     Positional arguments:
         prjDir: str -- The Manuskript project directory.
@@ -129,7 +129,7 @@ def convert_characters(prjDir):
 
 
 def convert_manuscript(prjDir):
-    """Create a Markdown file with the contents of project's "outline" text files.
+    """Create a Markdown file with the project's chapters and scenes.
     
     Positional arguments:
         prjDir: str -- The Manuskript project directory.

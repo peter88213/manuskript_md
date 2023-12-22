@@ -2,6 +2,16 @@
 
 A Python script to create Markdown-formatted text files from a [Manuskript](https://www.theologeek.ch/manuskript/) project.
 
+## Features
+
+- Creates *world.md*, a Markdown-formatted text file containing the story world descriptions. 
+  The heading levels reflect the hierarchy in *Manuskript*. 
+- Creates *characters.md*, a Markdown-formatted text file containing the character data.
+  Each character#s name is on the first level heading. 
+  The character information is structured on the second level.
+- Creates *manuscript.md*, a Markdown-formatted text file containing all chapters and scenes.
+- You can control which documents are created with the command line parameters. 
+
 ## Requirements
 
 - A Python installation (version 3.6 or newer).
