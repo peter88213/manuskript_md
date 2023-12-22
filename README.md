@@ -1,4 +1,4 @@
-# manuskript2md
+# manuskript_md
 
 A Python script to create Markdown-formatted text files from a [Manuskript](https://www.theologeek.ch/manuskript/) project.
 
