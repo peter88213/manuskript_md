@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """mskmd.py
 
-usage: mskmd.py [-h] [-m] [-w] [-c] projectdir
+usage: mskmd.py [-h] [-o] [-w] [-c] projectdir
 
 Create Markdown-formatted text files from a Manuscript project.
 
@@ -10,13 +10,12 @@ positional arguments:
 
 options:
   -h, --help        show this help message and exit
-  -m, --manuscript  Create a "manuscript.md" file.
+  -o, --outline     Create markdown-formatted files for all levels of the
+                    Manuskript outline.
   -w, --world       Create a "world.md" file.
   -c, --characters  Create a "characters.md" file.
 
-The created text files "manuscript.md", "world.md", and "characters.md" are
-placed in the Manuskript project directory. If no option is selected, The
-whole file set is created.
+The created text files are placed in the Manuskript project directory. 
 
 v1.0: Creating the new script.
 v1.1: Add "shebang"; refactor.
@@ -27,6 +26,7 @@ v2.2: Refactor; fix messages.
 v2.3: Fix a bug where character's multiline data gets lost; refactor.
 v2.4: Use Unix line breaks for the Python script.
 v3.0: New features: manuscript extraction, options.
+v4.0: Change the interface and add summaries on all levels.
 
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/convert_manuskript_world
@@ -37,6 +37,9 @@ import glob
 import os
 
 import xml.etree.ElementTree as ET
+
+MAXLEVEL = 6
+# Maximum chapter level.
 
 
 def convert_world(prjDir):
@@ -128,8 +131,8 @@ def convert_characters(prjDir):
     return f'Markdown file "{os.path.normpath(newFile)}" written.'
 
 
-def convert_manuscript(prjDir):
-    """Create a Markdown file with the project's chapters and scenes.
+def convert_outline(prjDir):
+    """Create Markdown files for all levels of the Manuskript outline.
     
     Positional arguments:
         prjDir: str -- The Manuskript project directory.
@@ -138,12 +141,29 @@ def convert_manuscript(prjDir):
     Raise an exception on error.
     """
 
-    def get_title(filePath):
+    def get_metadata(filePath):
+        """Return a dictionary with metadata taken from a YAML-like file."""
         with open(filePath, 'r', encoding='utf-8') as f:
             lines = f.readlines()
-        return lines[0].split(':', maxsplit=1)[1].strip()
+        metadata = {}
+        key = None
+        data = []
+        for line in lines:
+            if line.startswith(' '):
+                data.append(line.strip())
+            elif ':' in line:
+                if key:
+                    metadata[key] = '\n\n'.join(data)
+                    data = []
+                key, value = line.split(':', maxsplit=1)
+                data.append(value.strip())
+            elif not line:
+                metadata[key] = '\n\n'.join(data)
+                break
+        return metadata
 
     def get_content(filePath):
+        """Return a string with the scene content taken from a Manuskript outline file."""
         with open(filePath, 'r', encoding='utf-8') as f:
             lines = f.read().split('\n')
         contentLines = []
@@ -161,60 +181,152 @@ def convert_manuscript(prjDir):
                     contentLines.append(line)
         return '\n\n'.join(contentLines)
 
-    def iter_dir(directory, level):
+    def iter_dir(directory, level, maxLevel):
         level += 1
+        if level > MAXLEVEL:
+            raise ValueError(f'The maximum chapter level of {MAXLEVEL} has been exceeded.')
+
         entries = sorted(os.listdir(directory))
         for entry in entries:
             fullPath = os.path.join(directory, entry)
             if entry == ('folder.txt'):
-                heading = get_title(fullPath)
-                newlines.append(f"{'#' * level} {heading}")
+                chapterMetadata = get_metadata(fullPath)
+                chapterHeading = f"{'#' * level} {chapterMetadata.get('title', 'No title')}"
+
+                # Manuscript heading.
+                manuscript.append(chapterHeading)
+
+                # Scene titles heading.
+                scTitles.append(chapterHeading)
+
+                # Full scene synopsis heading.
+                scFullSynopsis.append(chapterHeading)
+
+                # Short scene synopsis heading.
+                scShortSynopsis.append(chapterHeading)
+
+                # Full chapter synopsis.
+                for i, chFullSynopsis in enumerate(chFullSynopses):
+                    if level <= i:
+                        chFullSynopses[i].append(chapterHeading)
+                chFullSummaries = chapterMetadata.get('summaryFull', '')
+                chFullSynopses[level].append(chFullSummaries)
+
+                # Short chapter synopsis.
+                for i, chShortSynopsis in enumerate(chShortSynopses):
+                    if level <= i:
+                        chShortSynopses[i].append(chapterHeading)
+                chShortSummaries = chapterMetadata.get('summarySentence', '')
+                chShortSynopses[level].append(chShortSummaries)
+
+                if level > maxLevel:
+                    maxLevel = level
                 break
+
         for entry in entries:
             fullPath = os.path.join(directory, entry)
             if os.path.isdir(fullPath):
-                iter_dir(fullPath, level)
+                maxLevel = iter_dir(fullPath, level, maxLevel)
             elif entry.endswith('.md'):
-               newlines.append(get_content(fullPath))
+               sceneMetadata = get_metadata(fullPath)
 
-    newlines = []
-    iter_dir(f'{prjDir}/outline', -1)
-    newFile = f'{prjDir}/manuscript.md'
-    with open(newFile, 'w', encoding='utf-8') as f:
-        f.write('\n\n'.join(newlines))
-    return f'Markdown file "{os.path.normpath(newFile)}" written.'
+               # Manuscript scene content.
+               manuscript.append(get_content(fullPath))
+
+               # Scene titles.
+               scTitle = sceneMetadata.get('title', 'No title')
+               scTitles.append(scTitle)
+
+               # Full scene synopsis.
+               scLongSummaries = sceneMetadata.get('summaryFull', '')
+               scFullSynopsis.append(scLongSummaries)
+
+               # Short scene synopsis.
+               scShortSummaries = sceneMetadata.get('summarySentence', '')
+               scShortSynopsis.append(scShortSummaries)
+        return maxLevel
+
+    manuscript = []
+    scTitles = []
+    chFullSynopses = [ [] for _ in range(MAXLEVEL + 1) ]
+    chShortSynopses = [ [] for _ in range(MAXLEVEL + 1) ]
+    scFullSynopsis = []
+    scShortSynopsis = []
+    maxLevel = iter_dir(f'{prjDir}/outline', -1, 0)
+
+    fileList = []
+    manuscriptFile = f'{prjDir}/manuscript.md'
+    with open(manuscriptFile, 'w', encoding='utf-8') as f:
+        f.write('\n\n'.join(manuscript))
+    fileList.append(os.path.normpath(manuscriptFile))
+
+    scTitlesFile = f'{prjDir}/scene_titles.md'
+    with open(scTitlesFile, 'w', encoding='utf-8') as f:
+        f.write('\n\n'.join(scTitles))
+    fileList.append(os.path.normpath(scTitlesFile))
+
+    scShortSynopsisFile = f'{prjDir}/short_scene_summaries.md'
+    with open(scShortSynopsisFile, 'w', encoding='utf-8') as f:
+        f.write('\n\n'.join(scShortSynopsis))
+    fileList.append(os.path.normpath(scShortSynopsisFile))
+
+    scFullSynopsisFile = f'{prjDir}/full_scene_summaries.md'
+    with open(scFullSynopsisFile, 'w', encoding='utf-8') as f:
+        f.write('\n\n'.join(scFullSynopsis))
+    fileList.append(os.path.normpath(scFullSynopsisFile))
+
+    for level, chShortSynopsis in enumerate(chShortSynopses):
+        if level == 0:
+            continue
+
+        if level > maxLevel:
+            break
+
+        chShortSynopsisFile = f'{prjDir}/short_chapter_summaries_level_{level}.md'
+        with open(chShortSynopsisFile, 'w', encoding='utf-8') as f:
+            f.write('\n\n'.join(chShortSynopsis))
+        fileList.append(os.path.normpath(chShortSynopsisFile))
+
+    for level, chFullSynopsis in enumerate(chFullSynopses):
+        if level == 0:
+            continue
+
+        if level > maxLevel:
+            break
+
+        chFullSynopsisFile = f'{prjDir}/full_chapter_summaries_level_{level}.md'
+        with open(chFullSynopsisFile, 'w', encoding='utf-8') as f:
+            f.write('\n\n'.join(chFullSynopsis))
+        fileList.append(os.path.normpath(chFullSynopsisFile))
+
+    output = '\n'.join(fileList)
+    return f"Markdown file(s) written:\n{output}"
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description=f'Create Markdown-formatted text files from a Manuscript project.',
-        epilog='The created text files "manuscript.md", "world.md", and "characters.md" are placed \
-        in the Manuskript project directory. \
-        If no option is selected, The whole file set is created.')
+        epilog='The created text files are placed in the Manuskript project directory.')
     parser.add_argument('prjDir', metavar='projectdir',
                         help='The Manuskript project directory.')
-    parser.add_argument('-m', '--manuscript', action='store_true',
-                        help='Create a "manuscript.md" file.')
+    parser.add_argument('-o', '--outline', action='store_true',
+                        help='Create markdown-formatted files for all levels of the Manuskript outline.')
     parser.add_argument('-w', '--world', action='store_true',
                         help='Create a "world.md" file.')
     parser.add_argument('-c', '--characters', action='store_true',
                         help='Create a "characters.md" file.')
     args = parser.parse_args()
-    if not (args.manuscript or args.world or args.characters):
-        convertAll = True
-    else:
-        convertAll = False
-    if convertAll or args.manuscript:
+    if args.outline:
         try:
-            print(convert_manuscript(args.prjDir))
+            print(convert_outline(args.prjDir))
         except Exception as ex:
             print(f'ERROR: {str(ex)}')
-    if convertAll or args.world:
+    if args.world:
         try:
             print(convert_world(args.prjDir))
         except Exception as ex:
             print(f'ERROR: {str(ex)}')
-    if convertAll or args.characters:
+    if args.characters:
         try:
             print(convert_characters(args.prjDir))
         except Exception as ex:

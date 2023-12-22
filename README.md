@@ -10,6 +10,12 @@ A Python script to create Markdown-formatted text files from a [Manuskript](http
   The first level headings show the characters' names. 
   The character information is structured on the second level.
 - Creates *manuscript.md*, a Markdown-formatted text file containing all chapters and scenes.
+- Creates synopses on all levels (up to 6) of the Manuskript *Outline*:
+    - Full chapter summaries in a document per chapter level.
+    - Short chapter summaries in a document per chapter level.
+    - Full scene summaries.
+    - Short scene summaries.
+    - Scene titles.
 - You can control which documents are created with the command line parameters. 
 
 ## Requirements
@@ -26,7 +32,7 @@ You can start the script either from the command line, or
 from a batch file or shell script (that may launch *pandoc* afterwards). 
 
 ```
-usage: mskmd.py [-h] [-m] [-w] [-c] projectdir
+usage: mskmd.py [-h] [-o] [-w] [-c] projectdir
 
 Create Markdown-formatted text files from a Manuscript project.
 
@@ -35,13 +41,12 @@ positional arguments:
 
 options:
   -h, --help        show this help message and exit
-  -m, --manuscript  Create a "manuscript.md" file.
+  -o, --outline     Create markdown-formatted files for all levels of the
+                    Manuskript outline.
   -w, --world       Create a "world.md" file.
   -c, --characters  Create a "characters.md" file.
 
-The created text files "manuscript.md", "world.md", and "characters.md" are
-placed in the Manuskript project directory. If no option is selected, The
-whole file set is created.
+The created text files are placed in the Manuskript project directory.
 ```
 
 As a *Manuskript* user you probably have [pandoc](https://pandoc.org/) installed, 
