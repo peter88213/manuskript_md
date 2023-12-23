@@ -33,7 +33,7 @@ v4.3: Fix the "main" interface.
 v4.4: Refactor.
 
 Copyright (c) 2023 Peter Triesberger
-For further information see https://github.com/peter88213/convert_manuskript_world
+For further information see https://github.com/peter88213/manuskript_md
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
 import glob
