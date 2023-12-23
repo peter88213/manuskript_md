@@ -30,6 +30,7 @@ v4.0: Change the interface and add summaries on all levels.
 v4.1: Refactor the code: Reuse get_metadata with convert_characters. 
 v4.2: Provide a main function to minimize the "script" part.
 v4.3: Fix the "main" interface.
+v4.4: Refactor.
 
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/convert_manuskript_world
@@ -353,5 +354,10 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--characters', action='store_true',
                         help='Create a "characters.md" file.')
     args = parser.parse_args()
-    main(args.prjDir, args.outline, args.world, args.characters)
+    main(
+        args.prjDir,
+        cnvOutline=args.outline,
+        cnvWorld=args.world,
+        cnvCharacters=args.characters
+        )
 
