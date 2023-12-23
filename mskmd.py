@@ -27,6 +27,7 @@ v2.3: Fix a bug where character's multiline data gets lost; refactor.
 v2.4: Use Unix line breaks for the Python script.
 v3.0: New features: manuscript extraction, options.
 v4.0: Change the interface and add summaries on all levels.
+v4.1: Refactor the code: Reuse get_metadata with convert_characters. 
 
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/convert_manuskript_world
@@ -76,6 +77,36 @@ def convert_world(prjDir):
     return f'Markdown file "{os.path.normpath(newFile)}" written.'
 
 
+def get_metadata(filePath):
+    """Return a dictionary with metadata taken from a YAML-like file.
+
+    Positional arguments:
+        filePath: str -- Path to a YAML-like file.
+    
+    Raise an exception on error.    
+    """
+    with open(filePath, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    metadata = {}
+    key = None
+    data = []
+    for line in lines:
+        if line.startswith(' '):
+            data.append(line.strip())
+        elif ':' in line:
+            if key:
+                metadata[key] = '\n\n'.join(data)
+                data = []
+            key, value = line.split(':', maxsplit=1)
+            data.append(value.strip())
+        elif not line:
+            break
+
+    if key is not None:
+        metadata[key] = '\n\n'.join(data)
+    return metadata
+
+
 def convert_characters(prjDir):
     """Create a Markdown file with project's character data.
     
@@ -86,7 +117,6 @@ def convert_characters(prjDir):
     Raise an exception on error.
     """
     headings = [
-        'Name',
         'Motivation',
         'Goal',
         'Conflict',
@@ -95,40 +125,55 @@ def convert_characters(prjDir):
         'Paragraph Summary',
         ]
 
-    newlines = []
+    charaLines = []
     for charaFile in glob.iglob(f'{prjDir}/characters/*.txt'):
         if charaFile is None:
             continue
 
-        with open(charaFile, 'r', encoding='utf-8') as f:
-            lines = f.read().split('\n')
-
         # Parse the YAML-like character data file.
-        heading = ''
-        for line in lines:
-            if line.startswith(' '):
-                text = line
-                appendParagraph = True
-            elif ':' in line:
-                heading, text = line.split(':', maxsplit=1)
-                appendParagraph = False
-            else:
-                continue
+        charaData = get_metadata(charaFile)
 
-            if heading in headings:
-                text = text.strip()
-                if text:
-                    if appendParagraph:
-                        newlines.append(text)
-                    elif heading == 'Name':
-                        newlines.append(f'# {text}')
-                    else:
-                        newlines.append(f'## {heading}')
-                        newlines.append(text)
+        charaLines.append(f"# {charaData.get('Name', 'Unknown')}")
+        for heading in headings:
+            if heading in charaData:
+                charaLines.append(f'## {heading}')
+                charaLines.append(charaData[heading])
     newFile = f'{prjDir}/characters.md'
     with open(newFile, 'w', encoding='utf-8') as f:
-        f.write('\n\n'.join(newlines))
+        f.write('\n\n'.join(charaLines))
     return f'Markdown file "{os.path.normpath(newFile)}" written.'
+
+
+def get_content(filePath):
+    """Return a list with the scene content lines taken from a Manuskript scene file.
+    
+    Positional arguments:
+        filePath: str -- Path to a Manuscript scene file.
+    
+    The Manuskript scene file consists of a YAML-like header, 
+    a gap consisting of several blank lines, and a text body,
+    consisting of paragraphs separated by single linebreaks.
+    
+    Raise an exception on error.        
+    """
+    with open(filePath, 'r', encoding='utf-8') as f:
+        lines = f.read().split('\n')
+    contentLines = []
+
+    # Use a state machine to identify the text body.
+    state = 0
+    # 0=Header, 1=Gap between header and text body, 2=text body
+    for line in lines:
+        if state == 2:
+            contentLines.append(line)
+        elif state == 0:
+            if not line:
+                state = 1
+        elif state == 1:
+            if line:
+                state = 2
+                contentLines.append(line)
+    return contentLines
 
 
 def convert_outline(prjDir):
@@ -140,46 +185,6 @@ def convert_outline(prjDir):
     Return a message on success. 
     Raise an exception on error.
     """
-
-    def get_metadata(filePath):
-        """Return a dictionary with metadata taken from a YAML-like file."""
-        with open(filePath, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-        metadata = {}
-        key = None
-        data = []
-        for line in lines:
-            if line.startswith(' '):
-                data.append(line.strip())
-            elif ':' in line:
-                if key:
-                    metadata[key] = '\n\n'.join(data)
-                    data = []
-                key, value = line.split(':', maxsplit=1)
-                data.append(value.strip())
-            elif not line:
-                metadata[key] = '\n\n'.join(data)
-                break
-        return metadata
-
-    def get_content(filePath):
-        """Return a string with the scene content taken from a Manuskript outline file."""
-        with open(filePath, 'r', encoding='utf-8') as f:
-            lines = f.read().split('\n')
-        contentLines = []
-        state = 0
-        # 0=Header, 1=Gap between header and body, 2=body
-        for line in lines:
-            if state == 2:
-                contentLines.append(line)
-            elif state == 0:
-                if not line:
-                    state = 1
-            elif state == 1:
-                if line:
-                    state = 2
-                    contentLines.append(line)
-        return '\n\n'.join(contentLines)
 
     def iter_dir(directory, level, maxLevel):
         level += 1
@@ -231,7 +236,7 @@ def convert_outline(prjDir):
                sceneMetadata = get_metadata(fullPath)
 
                # Manuscript scene content.
-               manuscript.append(get_content(fullPath))
+               manuscript.append('\n\n'.join(get_content(fullPath)))
 
                # Scene titles.
                scTitle = sceneMetadata.get('title', 'No title')
