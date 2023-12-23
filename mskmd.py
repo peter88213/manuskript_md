@@ -32,6 +32,7 @@ v4.2: Provide a main function to minimize the "script" part.
 v4.3: Fix the "main" interface.
 v4.4: Refactor.
 v5.0: API change: The converter routines return lists of the created Markdown files' paths.
+v5.0.1: Refactor.
 
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/manuskript_md
@@ -216,14 +217,14 @@ def convert_outline(prjDir):
                 # Full chapter synopsis.
                 for i, chFullSynopsis in enumerate(chFullSynopses):
                     if level <= i:
-                        chFullSynopses[i].append(chapterHeading)
+                        chFullSynopsis.append(chapterHeading)
                 chFullSummaries = chapterMetadata.get('summaryFull', '')
                 chFullSynopses[level].append(chFullSummaries)
 
                 # Short chapter synopsis.
                 for i, chShortSynopsis in enumerate(chShortSynopses):
                     if level <= i:
-                        chShortSynopses[i].append(chapterHeading)
+                        chShortSynopsis.append(chapterHeading)
                 chShortSummaries = chapterMetadata.get('summarySentence', '')
                 chShortSynopses[level].append(chShortSummaries)
 
