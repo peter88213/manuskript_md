@@ -31,6 +31,7 @@ v4.1: Refactor the code: Reuse get_metadata with convert_characters.
 v4.2: Provide a main function to minimize the "script" part.
 v4.3: Fix the "main" interface.
 v4.4: Refactor.
+v5.0: API change: The converter routines return lists of the created Markdown files' paths.
 
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/manuskript_md
@@ -51,7 +52,7 @@ def convert_world(prjDir):
     Positional arguments:
         prjDir: str -- The Manuskript project directory.
     
-    Return a message on success. 
+    Return a list containing the Markdown file path on success. 
     Raise an exception on error.
     """
 
@@ -76,7 +77,7 @@ def convert_world(prjDir):
     newFile = f'{prjDir}/world.md'
     with open(newFile, 'w', encoding='utf-8') as f:
         f.write('\n\n'.join(lines))
-    return f'Markdown file "{os.path.normpath(newFile)}" written.'
+    return [newFile]
 
 
 def get_metadata(filePath):
@@ -115,7 +116,7 @@ def convert_characters(prjDir):
     Positional arguments:
         prjDir: str -- The Manuskript project directory.
     
-    Return a message on success. 
+    Return a list containing the Markdown file path on success. 
     Raise an exception on error.
     """
     headings = [
@@ -143,7 +144,7 @@ def convert_characters(prjDir):
     newFile = f'{prjDir}/characters.md'
     with open(newFile, 'w', encoding='utf-8') as f:
         f.write('\n\n'.join(charaLines))
-    return f'Markdown file "{os.path.normpath(newFile)}" written.'
+    return [newFile]
 
 
 def get_content(filePath):
@@ -184,7 +185,7 @@ def convert_outline(prjDir):
     Positional arguments:
         prjDir: str -- The Manuskript project directory.
     
-    Return a message on success. 
+    Return a list containing the Markdown file paths on success. 
     Raise an exception on error.
     """
 
@@ -265,22 +266,22 @@ def convert_outline(prjDir):
     manuscriptFile = f'{prjDir}/manuscript.md'
     with open(manuscriptFile, 'w', encoding='utf-8') as f:
         f.write('\n\n'.join(manuscript))
-    fileList.append(os.path.normpath(manuscriptFile))
+    fileList.append(manuscriptFile)
 
     scTitlesFile = f'{prjDir}/scene_titles.md'
     with open(scTitlesFile, 'w', encoding='utf-8') as f:
         f.write('\n\n'.join(scTitles))
-    fileList.append(os.path.normpath(scTitlesFile))
+    fileList.append(scTitlesFile)
 
     scShortSynopsisFile = f'{prjDir}/short_scene_summaries.md'
     with open(scShortSynopsisFile, 'w', encoding='utf-8') as f:
         f.write('\n\n'.join(scShortSynopsis))
-    fileList.append(os.path.normpath(scShortSynopsisFile))
+    fileList.append(scShortSynopsisFile)
 
     scFullSynopsisFile = f'{prjDir}/full_scene_summaries.md'
     with open(scFullSynopsisFile, 'w', encoding='utf-8') as f:
         f.write('\n\n'.join(scFullSynopsis))
-    fileList.append(os.path.normpath(scFullSynopsisFile))
+    fileList.append(scFullSynopsisFile)
 
     for level, chShortSynopsis in enumerate(chShortSynopses):
         if level == 0:
@@ -292,7 +293,7 @@ def convert_outline(prjDir):
         chShortSynopsisFile = f'{prjDir}/short_chapter_summaries_level_{level}.md'
         with open(chShortSynopsisFile, 'w', encoding='utf-8') as f:
             f.write('\n\n'.join(chShortSynopsis))
-        fileList.append(os.path.normpath(chShortSynopsisFile))
+        fileList.append(chShortSynopsisFile)
 
     for level, chFullSynopsis in enumerate(chFullSynopses):
         if level == 0:
@@ -304,10 +305,9 @@ def convert_outline(prjDir):
         chFullSynopsisFile = f'{prjDir}/full_chapter_summaries_level_{level}.md'
         with open(chFullSynopsisFile, 'w', encoding='utf-8') as f:
             f.write('\n\n'.join(chFullSynopsis))
-        fileList.append(os.path.normpath(chFullSynopsisFile))
+        fileList.append(chFullSynopsisFile)
 
-    output = '\n'.join(fileList)
-    return f"Markdown file(s) written:\n{output}"
+    return fileList
 
 
 def main(prjDir, cnvOutline=True, cnvWorld=True, cnvCharacters=True):
@@ -325,17 +325,21 @@ def main(prjDir, cnvOutline=True, cnvWorld=True, cnvCharacters=True):
     """
     if cnvOutline:
         try:
-            print(convert_outline(prjDir))
+            fileList = convert_outline(prjDir)
+            for filePath in fileList:
+                print(f"Markdown file written: {os.path.normpath(filePath)}")
         except Exception as ex:
             print(f'ERROR: {str(ex)}')
     if cnvWorld:
         try:
-            print(convert_world(prjDir))
+            fileList = convert_world(prjDir)
+            print(f"Markdown file written: {os.path.normpath(fileList[0])}")
         except Exception as ex:
             print(f'ERROR: {str(ex)}')
     if cnvCharacters:
         try:
-            print(convert_characters(prjDir))
+            fileList = convert_characters(prjDir)
+            print(f"Markdown file written: {os.path.normpath(fileList[0])}")
         except Exception as ex:
             print(f'ERROR: {str(ex)}')
 
