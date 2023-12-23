@@ -317,9 +317,9 @@ def main(prjDir, cnvOutline=True, cnvWorld=True, cnvCharacters=True):
         prjDir: str -- The Manuskript project directory.
     
     Optional arguments:
-        cnvOutline: str -- If True, convert the story outline.
-        cnvWorld: str -- If True, convert the story world data.
-        cnvCharacters: str -- If True, convert the character data.
+        cnvOutline: bool -- If True, convert the story outline.
+        cnvWorld: bool -- If True, convert the story world data.
+        cnvCharacters: bool -- If True, convert the character data.
     
     Messages go to the console.
     """
