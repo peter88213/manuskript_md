@@ -59,6 +59,11 @@ Here's how the command looks like for converting the *world.md* file into
 `pandoc -o world.odt -fMarkdown-smart world.md`
 
 
+## See also
+
+[manuskript-exporter](https://github.com/peter88213/manuskript-exporter) is a simple 
+Python application based on the *mskmd* module. It lets you select the output format 
+and creates Markdown, ODT, DOCX, and HTML documents.
 
 
 ## License
