@@ -24,7 +24,7 @@ A Python script to create Markdown-formatted text files from a [Manuskript](http
 
 ## Download
 
-Save the file [mskmd.py](https://raw.githubusercontent.com/peter88213/convert_manuskript-world/main/mskmd.py).
+Save the file [mskmd.py](https://raw.githubusercontent.com/peter88213/convert_manuskript/main/mskmd/mskmd.py).
 
 ## Usage
 
