@@ -29,6 +29,7 @@ v3.0: New features: manuscript extraction, options.
 v4.0: Change the interface and add summaries on all levels.
 v4.1: Refactor the code: Reuse get_metadata with convert_characters. 
 v4.2: Provide a main function to minimize the "script" part.
+v4.3: Fix the "main" interface.
 
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/convert_manuskript_world
@@ -308,24 +309,32 @@ def convert_outline(prjDir):
     return f"Markdown file(s) written:\n{output}"
 
 
-def main(cnvOutline, cnvWorld, cnvCharacters):
+def main(prjDir, cnvOutline=True, cnvWorld=True, cnvCharacters=True):
     """Run conversion according to the arguments.
+    
+    Positional arguments:
+        prjDir: str -- The Manuskript project directory.
+    
+    Optional arguments:
+        cnvOutline: str -- If True, convert the story outline.
+        cnvWorld: str -- If True, convert the story world data.
+        cnvCharacters: str -- If True, convert the character data.
     
     Messages go to the console.
     """
     if cnvOutline:
         try:
-            print(convert_outline(args.prjDir))
+            print(convert_outline(prjDir))
         except Exception as ex:
             print(f'ERROR: {str(ex)}')
     if cnvWorld:
         try:
-            print(convert_world(args.prjDir))
+            print(convert_world(prjDir))
         except Exception as ex:
             print(f'ERROR: {str(ex)}')
     if cnvCharacters:
         try:
-            print(convert_characters(args.prjDir))
+            print(convert_characters(prjDir))
         except Exception as ex:
             print(f'ERROR: {str(ex)}')
 
@@ -344,5 +353,5 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--characters', action='store_true',
                         help='Create a "characters.md" file.')
     args = parser.parse_args()
-    main(args.outline, args.world, args.characters)
+    main(args.prjDir, args.outline, args.world, args.characters)
 
