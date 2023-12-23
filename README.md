@@ -20,7 +20,7 @@ A Python script to create Markdown-formatted text files from a [Manuskript](http
 
 ## Requirements
 
-- A Python installation (version 3.6 or newer).
+- A [Python](https://www.python.org/) installation (version 3.6 or newer).
 
 ## Download
 
