@@ -89,11 +89,13 @@ def get_data(filePath):
     Second element: A list with the scene content lines taken from a Manuskript scene file.
     
     Positional arguments:
-        filePath: str -- Path to a Manuscript scene file.
+        filePath: str -- Path to a Manuskript text file.
     
     The Manuskript scene file consists of a YAML-like header, 
     a gap consisting of several blank lines, and a text body,
     consisting of paragraphs separated by single linebreaks.
+    Other Manuskript data files, such as the character data
+    or the folder data, only have the YAML-like header.
     
     Raise an exception on error.        
     """
